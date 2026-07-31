@@ -106,9 +106,115 @@ def removeItems(listIn):
     saveList(listIn)
 
 def editItems(listIn):
+    editMore = True
+
+    while editMore:
+        validEdit = False
+
+        while not validEdit:
+            printList(listIn)
+            print("Edit Item (index or item)?")
+            toEdit = input(" --> ").lower()
+
+            # Exit case
+            if toEdit in ["no", "n", "exit", "e", "quit", "q"]:
+                editMore = False
+                break
+
+            # Test if an index was put in
+            try:
+                toEdit = int(toEdit) - 1
+                if toEdit in range(len(listIn)):
+                    print("")
+                    print("Change List Item To:")
+                    newItem = input(" --> ")
+
+                    listIn[toEdit] = newItem
+                    validEdit = True
+                    break
+            except ValueError:
+                # Test if non-index is in the list
+                for line in listIn:
+                    if toEdit == line.lower():
+                        lineIndex = listIn.index(line)
+                        print("")
+                        print("Change List Item To:")
+                        newItem = input(" --> ")
+
+                        listIn[lineIndex] = newItem
+                        validEdit = True
+                        break
+
+            if not validEdit:
+                print("")
+                print("Invalid input - please try again!")
+
     saveList(listIn)
 
 def moveItems(listIn):
+    moveMore = True
+
+    while moveMore:
+        validMove = False
+
+        while not validMove:
+            printList(listIn)
+            print("Move Item (index or item)?")
+            toMove = input(" --> ").lower()
+
+            # Exit case
+            if toMove in ["no", "n", "exit", "e", "quit", "q"]:
+                moveMore = False
+                break
+
+            try:
+                toMove = int(toMove) - 1
+                if toMove in range(len(listIn)):
+                    print("")
+                    print("Move List Item To Index:")
+                    newIndex = input(" --> ")
+
+                    # Validate newIndex
+                    try:
+                        newIndex = int(newIndex) - 1
+                        if newIndex in range(len(listIn)):
+                            listIn.insert(newIndex, listIn.pop(toMove))
+                            validMove = True
+                            break
+                        else:
+                            print("Invalid new index!")
+                            continue
+                    except ValueError:
+                        print("Invalid new index!")
+                        continue
+            except ValueError:
+                # Test if non-index is in the list
+                for line in listIn:
+                    if toMove == line.lower():
+                        lineIndex = listIn.index(line)
+
+                        print("")
+                        print("Move List Item To Index:")
+                        newIndex = input(" --> ")
+
+                        # Validate newIndex
+                        try:
+                            newIndex = int(newIndex) - 1
+                            if newIndex in range(len(listIn)):
+                                listIn.insert(newIndex, listIn.pop(lineIndex))
+                                validMove = True
+                                break
+                            else:
+                                print("Invalid new index!")
+                                continue
+                        except ValueError:
+                            print("Invalid new index!")
+                            continue
+
+            if not validMove:
+                print("")
+                print("Invalid input - please try again!")
+
     saveList(listIn)
 
 """ MAIN FUNCTION """
