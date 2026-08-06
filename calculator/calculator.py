@@ -161,7 +161,7 @@ def main():
                 elif key == "+": # Special case for addition (for greater optimization)
                     # By this point, the only operators left should be "+"
                     equation = [i for i in equation if i != "+"] # Remove pluses
-                    result = add(equation)
+                    result = add(equation) # Sum it all
                 else:
                     handle_math(equation, key, value)
                     print(f"Equation is now: {' '.join(str(num) for num in equation)}")
