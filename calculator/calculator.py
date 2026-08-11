@@ -10,10 +10,8 @@ Potential math:
 1 / 0
 5 * 20
 5+10-11*7^2
-
-Not:
-2 ^ 2 ^ 2
-(5 + 10) ^ 2 - 10 / 3 + 12
+(5 - 10)^2 - 10 / 3 + 12
+(5 - 10)^3 - (5 + 10)^4
 """
 
 """ IMPORTS """
@@ -122,15 +120,43 @@ def handle_math(equation, operator, operation): # Operates on the provided list
 
     print(f"Handle result: {result}. Replaced indexes {prev_index} - {next_index}")
 
+def iterate(equation) -> int: # Iterate through EMDAS and perform in-place replacements for the math
+    for key, value in operations.items():
+        while key in equation:
+            # Special case for subtraction (or else order is messed up)
+            if key == "-":
+                print("Handling subtraction by swapping all minus signs to adding a negative value")
+                negative_indexes = [i for i, val in enumerate(equation) if val == key]
+
+                while len(negative_indexes) > 0:
+                    # Get last index and swap its sign, then make the next float negative
+                    index = negative_indexes.pop()
+                    equation[index] = "+"
+                    equation[index + 1] = -equation[index + 1]
+
+                print(f"Equation is now: {' '.join(str(num) for num in equation)}")
+
+            # Special case for addition (for greater optimization), the final return
+            elif key == "+": 
+                # By this point, the only operators left should be "+"
+                print("Handling addition (final step)")
+                equation = [i for i in equation if i != "+"] # Remove pluses
+
+            else:
+                handle_math(equation, key, value)
+                print(f"Equation is now: {' '.join(str(num) for num in equation)}")
+
+    return add(equation) # Sum it all
+
 """ MAIN """
 def main():
     isMathing = True
     while isMathing:
-        equation_input = input("Type some math: ")
+        equation_input = input("Type some math: ").lower().replace(" ", "") # Clean the input
         print(equation_input)
 
         # Handle exit
-        if equation_input.lower() in ['quit', 'q', 'exit', 'e', 'cancel', 'c']:
+        if equation_input in ['quit', 'q', 'exit', 'e', 'end', 'cancel', 'c']:
             isMathing = False
             break
 
@@ -138,33 +164,30 @@ def main():
         for operator in operations.keys(): 
             equation_input = equation_input.replace(operator, f" {operator} ")
 
+        equation_input = equation_input.replace("(", " ( ")
+        equation_input = equation_input.replace(")", " ) ")
+
         equation = equation_input.split() # Split the math by spaces
         equation = convert_floats(equation)
         print(equation)
 
         result = 0
 
-        # Iterate through EMDAS and perform in-place replacements for the math
-        for key, value in operations.items():
-            while key in equation:
-                if key == "-": # Special case for subtraction (or else order is messed up)
-                    print("Handling subtraction by swapping all minus signs to adding a negative value")
-                    negative_indexes = [i for i, val in enumerate(equation) if val == key]
+        # Handle parenthesees
+        print("Handling parenthetical")
+        while "(" in equation:
+            openIndex = equation.index("(") 
+            closeIndex = equation.index(")")
 
-                    while len(negative_indexes) > 0:
-                        # Get last index and swap its sign, then make the next float negative
-                        index = negative_indexes.pop()
-                        equation[index] = "+"
-                        equation[index + 1] = -equation[index + 1]
+            inner = equation[openIndex + 1:closeIndex] # Clone the inner part
 
-                    print(f"Equation is now: {' '.join(str(num) for num in equation)}")
-                elif key == "+": # Special case for addition (for greater optimization)
-                    # By this point, the only operators left should be "+"
-                    equation = [i for i in equation if i != "+"] # Remove pluses
-                    result = add(equation) # Sum it all
-                else:
-                    handle_math(equation, key, value)
-                    print(f"Equation is now: {' '.join(str(num) for num in equation)}")
+            inner = iterate(inner)
+
+            equation[openIndex:closeIndex + 1] = [inner] # Replace the whole thing with the equated value
+
+        print(f"No more parentheses. Equation is now: {' '.join(str(num) for num in equation)}")
+
+        result = iterate(equation)
 
         print("")
         print(f"The answer is: {result}")
